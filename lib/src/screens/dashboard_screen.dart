@@ -36,11 +36,14 @@ class DashBoardScreen extends StatelessWidget {
             },
           ),
           ListTile(
-            title: Text('Practica 2'),
-            subtitle: Text('Descripcion corta'),
-            leading: Icon(Icons.thermostat),
+            title: Text('Intenciones'),
+            subtitle: Text('Intenciones implicitas'),
+            leading: Icon(Icons.phone_android),
             trailing: Icon(Icons.chevron_right),
-            onTap: () {},
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.pushNamed(context, '/intenciones');
+            },
           ),
         ]),
       ),
