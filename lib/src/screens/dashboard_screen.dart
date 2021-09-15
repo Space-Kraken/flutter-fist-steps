@@ -26,8 +26,8 @@ class DashBoardScreen extends StatelessWidget {
             ),
           ),
           ListTile(
-            title: Text('Practica 1'),
-            subtitle: Text('Descripcion corta'),
+            title: Text('Propinas'),
+            subtitle: Text('Calcula cuanto pagar'),
             leading: Icon(Icons.monetization_on_outlined),
             trailing: Icon(Icons.chevron_right),
             onTap: () {
@@ -40,10 +40,10 @@ class DashBoardScreen extends StatelessWidget {
             subtitle: Text('Intenciones implicitas'),
             leading: Icon(Icons.phone_android),
             trailing: Icon(Icons.chevron_right),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.pushNamed(context, '/intenciones');
-            },
+            // onTap: () {
+            //   Navigator.pop(context);
+            //   Navigator.pushNamed(context, '/intenciones');
+            // },
           ),
         ]),
       ),
