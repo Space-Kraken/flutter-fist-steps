@@ -34,7 +34,6 @@ class DatabaseHelper {
   }
 
   Future<void> _createTable(Database db, int version) async {
-    // await db.execute("CREATE TABLE $_TBLNotes (id INTEGER PRIMARY KEY, titulo VARCHAR(50), detalle VARCHAR(100))");
     String script =
         "CREATE TABLE $_TBLNotes (id INTEGER PRIMARY KEY, titulo VARCHAR(50), detalle VARCHAR(100))";
     await db.execute(script);
@@ -88,10 +87,13 @@ class DatabaseHelper {
     await db.execute(script);
   }
 
-  Future<List<ProfileModel>> getUser() async {
+  Future<ProfileModel?> getUser() async {
     var connection = await database;
     var userData = await connection!.query(_TBLProfile);
-    return userData.map((user) => ProfileModel.fromMap(user)).toList();
+    if (userData.length > 0) {
+      return ProfileModel.fromMap(userData.first);
+    }
+    return null;
   }
 
   Future<int> insertUserInfo(Map<String, dynamic> row) async {

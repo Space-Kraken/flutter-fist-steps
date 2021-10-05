@@ -29,7 +29,9 @@ class _NotasScrennState extends State<NotasScreen> {
         actions: [
           IconButton(
             onPressed: () {
-              Navigator.pushNamed(context, '/AgregarNota');
+              Navigator.pushNamed(context, '/AgregarNota').whenComplete(() {
+                setState(() {});
+              });
             },
             icon: Icon(Icons.note_add),
           )

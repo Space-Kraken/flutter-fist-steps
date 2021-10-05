@@ -17,4 +17,6 @@ class Api {
       return null;
     }
   }
+
+  getAllPopular() {}
 }

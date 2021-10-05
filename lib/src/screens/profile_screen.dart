@@ -20,6 +20,8 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   late DatabaseHelper _databaseHelper;
   File? image;
+  late XFile imageTempFile;
+  bool imagePicked = false;
   final _formKey = GlobalKey<FormState>();
   TextEditingController _name = TextEditingController();
   TextEditingController _aPaterno = TextEditingController();
@@ -29,12 +31,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> pickImage(ImageSource source) async {
     try {
-      final image = await ImagePicker().pickImage(source: source);
+      XFile? image = await ImagePicker().pickImage(source: source);
       if (image == null) return;
-      final imagePermanent = await saveImagePermanently(image.path);
-      print(imagePermanent);
+
+      // final imagePermanent = await saveImagePermanently(image);
+      final imageTemporary = File(image.path);
       setState(() {
-        this.image = imagePermanent;
+        this.image = imageTemporary;
+        this.imageTempFile = image;
+        this.imagePicked = true;
       });
     } on PlatformException catch (e) {
       print(e);
@@ -44,12 +49,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     if (widget.profileData != null) {
+      print("Image");
+      print(widget.profileData!.image!);
       _name.text = widget.profileData!.name!;
       _aPaterno.text = widget.profileData!.aPaterno!;
       _aMaterno.text = widget.profileData!.aMaterno!;
       _phoneNumber.text = widget.profileData!.phoneNumber.toString();
       _email.text = widget.profileData!.email!;
-      image = new File(widget.profileData!.image!);
+      image = widget.profileData?.image != ""
+          ? new File(widget.profileData!.image!)
+          : null;
     }
 
     _databaseHelper = DatabaseHelper();
@@ -220,14 +229,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ElevatedButton.styleFrom(primary: ColorSetting.colorButton),
               onPressed: () async {
                 if (widget.profileData == null) {
-                  image = await saveImagePermanently(image!.path);
+                  if (imagePicked) {
+                    image = await saveImagePermanently(imageTempFile);
+                  }
                   ProfileModel userData = ProfileModel(
                     name: _name.text,
                     aPaterno: _aPaterno.text,
                     aMaterno: _aMaterno.text,
                     phoneNumber: int.parse(_phoneNumber.text),
                     email: _email.text,
-                    image: image!.path,
+                    image: image != null ? image!.path : "",
                   );
                   _databaseHelper
                       .insertUserInfo(userData.toMap())
@@ -242,15 +253,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   });
                 } else {
                   //Update
-                  image = await saveImagePermanently(image!.path);
+                  if (imagePicked) {
+                    image = await saveImagePermanently(imageTempFile);
+                  }
                   ProfileModel userData = ProfileModel(
-                      id: 1,
-                      name: _name.text,
-                      aPaterno: _aPaterno.text,
-                      aMaterno: _aMaterno.text,
-                      phoneNumber: int.parse(_phoneNumber.text),
-                      email: _email.text,
-                      image: image!.path);
+                    id: 1,
+                    name: _name.text,
+                    aPaterno: _aPaterno.text,
+                    aMaterno: _aMaterno.text,
+                    phoneNumber: int.parse(_phoneNumber.text),
+                    email: _email.text,
+                    image: image != null ? image!.path : "",
+                  );
                   _databaseHelper.updateUser(userData.toMap()).then((value) {
                     if (value > 0) {
                       Navigator.pop(context);
@@ -262,7 +276,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   });
                 }
               },
-              child: const Text('Save profile data'))
+              child: widget.profileData != null
+                  ? Text("Update Profile Info")
+                  : Text('Save profile data'))
         ],
       ),
     );
@@ -285,9 +301,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Future<File> saveImagePermanently(String imagePath) async {
-    final directory = await getApplicationDocumentsDirectory();
-    final name = basename(imagePath);
-    return await File(imagePath).copy('${directory.path}/${name}');
+  Future<File> saveImagePermanently(XFile imageTemp) async {
+    Directory? directory = await getExternalStorageDirectory();
+    String filename = basename(imageTemp.path);
+    String storePath = join(directory!.path, filename);
+    await imageTemp.saveTo(storePath);
+    return File(storePath);
   }
 }

@@ -31,8 +31,7 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
   Widget build(BuildContext context) {
     return FutureBuilder(
       future: _databaseHelper.getUser(),
-      builder:
-          (BuildContext context, AsyncSnapshot<List<ProfileModel>> snapshot) {
+      builder: (BuildContext context, AsyncSnapshot<ProfileModel?> snapshot) {
         if (snapshot.hasError) {
           print(snapshot.error);
           return Center(
@@ -50,12 +49,12 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
               drawer: Drawer(
                 child: ListView(children: [
                   UserAccountsDrawerHeader(
-                    accountName: snapshot.data!.length != 0
+                    accountName: snapshot.data != null
                         ? Text(
-                            '${snapshot.data![0].name} ${snapshot.data![0].aPaterno} ${snapshot.data![0].aMaterno}')
+                            '${snapshot.data!.name} ${snapshot.data!.aPaterno} ${snapshot.data!.aMaterno}')
                         : Text("Uknow"),
-                    accountEmail: snapshot.data!.length != 0
-                        ? Text('${snapshot.data![0].email}')
+                    accountEmail: snapshot.data != null
+                        ? Text('${snapshot.data!.email}')
                         : Text("Uknow"),
                     arrowColor: Colors.white,
                     currentAccountPicture: InkWell(
@@ -71,25 +70,25 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
                                       onPressed: () {
                                         Navigator.pop(context);
                                         Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    ProfileScreen(
-                                                        profileData: snapshot
-                                                                    .data!
-                                                                    .length !=
-                                                                0
-                                                            ? snapshot.data![0]
-                                                            : null)));
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        ProfileScreen(
+                                                            profileData: snapshot
+                                                                        .data !=
+                                                                    null
+                                                                ? snapshot.data!
+                                                                : null)))
+                                            .whenComplete(
+                                                () => {setState(() {})});
                                       })
                                 ],
                               );
                             });
                       },
                       child: CircleAvatar(
-                        backgroundImage: snapshot.data!.length != 0
-                            ? Image.file(
-                                    new File('${snapshot.data![0].image!}'))
+                        backgroundImage: snapshot.data != null
+                            ? Image.file(new File('${snapshot.data!.image!}'))
                                 .image
                             : null,
                         child: Icon(Icons.person),
@@ -127,6 +126,16 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.pushNamed(context, '/notas');
+                    },
+                  ),
+                  ListTile(
+                    title: Text('Movies'),
+                    subtitle: Text('Prueba API REST'),
+                    leading: Icon(Icons.movie),
+                    trailing: Icon(Icons.chevron_right),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.pushNamed(context, '/movie');
                     },
                   ),
                 ]),
