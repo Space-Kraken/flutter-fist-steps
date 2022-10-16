@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:practica2/src/models/notas_model.dart';
+import 'package:practica2/src/models/popular_movie_model.dart';
 import 'package:practica2/src/models/profile_Model.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -11,6 +12,7 @@ class DatabaseHelper {
   static final _DBVersion = 2;
   static final _TBLNotes = "tblNotas";
   static final _TBLProfile = "tblProfile";
+  static final _TBLFavMovies = "tblFavMovies";
 
   static Database? _database;
 
@@ -40,6 +42,19 @@ class DatabaseHelper {
 
     script =
         "CREATE TABLE $_TBLProfile (id INTEGER PRIMARY KEY, name VARCHAR(30), aPaterno VARCHAR(50), aMaterno VARCHAR(50), phoneNumber INT(10), email VARCHAR(50), image VARCHAR(250))";
+    await db.execute(script);
+
+    script =
+      '''CREATE TABLE $_TBLFavMovies (
+        id INTEGER PRIMARY KEY,
+        backdrop_path VARCHAR(250),
+        original_language VARCHAR(50),
+        original_title VARCHAR(50),
+        overview VARCHAR(250),
+        popularity VARCHAR(50),
+        poster_path VARCHAR(250),
+        title VARCHAR(50),
+        vote_average VARCHAR(50))''';
     await db.execute(script);
   }
 
@@ -105,5 +120,32 @@ class DatabaseHelper {
     var connection = await database;
     return connection!
         .update(_TBLProfile, row, where: "id = ?", whereArgs: [row['id']]);
+  }
+
+  Future<List<PopularMoviesModel>?> getFavoritesMovies() async {
+    var connection = await database;
+      var moviesList = await connection!.query(_TBLFavMovies);
+      return moviesList.map((movie)=> PopularMoviesModel.fromMap(movie)).toList();
+  }
+
+  Future<int> addToFavorites(Map<String, dynamic> row) async {
+    var connection = await database;
+    print(row);
+    return connection!.insert(_TBLFavMovies, row);
+  }
+
+  Future<int> removeFromFavorites(int id) async {
+    var connection = await database;
+    return connection!.delete(_TBLFavMovies, where: "id = ?", whereArgs: [id]);
+  }
+
+  Future<bool> seekInFavorites(int id) async{
+    var connection = await database;
+    var favorite = await connection!.query(_TBLFavMovies, where: "id = ?", whereArgs: [id]);
+    if (favorite.length > 0) {
+      return true; 
+    }else{
+      return false;
+    }
   }
 }

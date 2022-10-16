@@ -9,10 +9,8 @@ class PopularMoviesModel {
     this.overview,
     this.popularity,
     this.posterPath,
-    this.releaseDate,
     this.title,
     this.voteAverage,
-    this.voteCount,
   });
 
   String? backdropPath;
@@ -22,24 +20,36 @@ class PopularMoviesModel {
   String? overview;
   double? popularity;
   String? posterPath;
-  DateTime? releaseDate;
   String? title;
-  int? voteAverage;
-  int? voteCount;
+  double? voteAverage;
 
   factory PopularMoviesModel.fromMap(Map<String, dynamic> map) {
     return PopularMoviesModel(
-      backdropPath: map['backdrop_path'],
+      backdropPath: map['backdrop_path'] ?? "",
       id: map['id'],
       originalLanguage: map['original_language'],
       originalTitle: map['original_title'],
       overview: map['overview'],
       popularity: map['popularity'],
-      posterPath: map['poster_path'],
-      releaseDate: DateTime.parse(map['release_date']),
+      posterPath: map['poster_path'] ?? "",
       title: map['title'],
-      voteAverage: map['vote_average'],
-      voteCount: map['vote_count'],
+      voteAverage: map['vote_average'] is String
+          ? double.parse(map['vote_average'])
+          : map['vote_average'] is int ? map['vote_average'].toDouble() : map['vote_average'],
     );
   }
+
+  Map<String, dynamic> toMap(){
+    return {
+      'backdrop_path': backdropPath,
+      'id': id,
+      'original_language': originalLanguage,
+      'original_title': originalTitle,
+      'overview': overview,
+      'popularity': popularity,
+      'poster_path': posterPath,
+      'title': title,
+      'vote_average': voteAverage,
+  };
+}
 }

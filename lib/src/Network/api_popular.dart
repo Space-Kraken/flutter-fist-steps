@@ -13,10 +13,9 @@ class Api {
       var popular = jsonDecode(response.body)['results'] as List;
       List<PopularMoviesModel> listPopular =
           popular.map((movie) => PopularMoviesModel.fromMap(movie)).toList();
+      return listPopular;
     } else {
       return null;
     }
   }
-
-  getAllPopular() {}
 }
